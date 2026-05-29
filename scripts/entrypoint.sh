@@ -2,7 +2,10 @@
 set -e
 # When Railway mounts a volume at /paperclip it is often not writable by the node user.
 # Create dirs Paperclip needs and ensure the whole tree is owned by node.
-mkdir -p /paperclip/instances/default/logs
+mkdir -p /paperclip/instances/default/logs /paperclip/hermes
+if [ ! -f /paperclip/hermes/config.yaml ]; then
+  printf '%s\n' 'default_model: zai/glm-4.7' > /paperclip/hermes/config.yaml
+fi
 chown -R node:node /paperclip
 
 # ---------- Fix for GitHub issue #4 ----------

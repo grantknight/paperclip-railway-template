@@ -28,7 +28,8 @@ ENV CLAUDE_CODE_BUBBLEWRAP=1
 ENV HOME=/paperclip \
     PAPERCLIP_INSTANCE_ID=default \
     PAPERCLIP_CONFIG=/paperclip/instances/default/config.json \
-    OPENCODE_ALLOW_ALL_MODELS=true
+    OPENCODE_ALLOW_ALL_MODELS=true \
+    HERMES_HOME=/paperclip/hermes
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -37,8 +38,11 @@ RUN apt-get update \
     git \
     jq \
     openssh-client \
+    python3 \
+    python3-pip \
     ripgrep \
     && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --break-system-packages --no-cache-dir hermes-agent
 RUN corepack enable
 
 WORKDIR /app
@@ -55,7 +59,7 @@ RUN chmod +x /wrapper/entrypoint.sh
 # Optional local adapters/tools parity with upstream Dockerfile.
 RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai
 RUN npm install --global --omit=dev tsx
-RUN mkdir -p /paperclip \
+RUN mkdir -p /paperclip /paperclip/hermes \
     && chown -R node:node /app /paperclip /wrapper
 
 # Railway sets PORT at runtime and this process binds to it.
