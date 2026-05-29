@@ -21,11 +21,16 @@ function startPaperclip() {
     PORT: String(INTERNAL_PORT),
     PAPERCLIP_OPEN_ON_LISTEN: "false",
   };
-  paperclipProc = spawn("tsx", ["server/dist/index.js"], {
-    cwd: APP_ROOT,
-    env: childEnv,
-    stdio: "inherit",
-  });
+  // Match upstream paperclip Dockerfile CMD so pnpm deps (e.g. drizzle-orm) resolve correctly.
+  paperclipProc = spawn(
+    "node",
+    ["--import", "./server/node_modules/tsx/dist/loader.mjs", "server/dist/index.js"],
+    {
+      cwd: APP_ROOT,
+      env: childEnv,
+      stdio: "inherit",
+    },
+  );
   paperclipProc.on("exit", (code, signal) => {
     console.error(`[paperclip] exited code=${code} signal=${signal}`);
     paperclipProc = null;
